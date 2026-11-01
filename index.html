@@ -3,8 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://securetoken.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://identitytoolkit.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
 <title>Technologie Invest · Formations</title>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;800&display=swap" media="print" onload="this.media='all'">
 <style>
 :root{--bg:#eef6f0;--ink:#14231e;--mut:#55655e;--card:rgba(255,255,255,.9);--line:rgba(20,35,30,.1);--g:#12b06a;--g2:#0a8f55;--gl:#34d98f;--o:#e39a0e;--r:#e5533f;--r2:#c13a28;--sh:rgba(10,143,85,.55)}
 @media(prefers-color-scheme:dark){:root{--bg:#09130f;--ink:#eef6f1;--mut:#9fb3aa;--card:rgba(20,38,32,.9);--line:rgba(255,255,255,.1);--g:#19b872;--g2:#0b8a52;--gl:#3fe39b;--o:#f4b840;--r:#f0705f;--r2:#c7483a;--sh:rgba(25,184,114,.5)}}
@@ -24,7 +28,7 @@ p{margin:6px 0;color:var(--mut)}
 .bg i:nth-of-type(4){background:radial-gradient(circle,rgba(255,122,138,.4),transparent 65%);right:-22vmax;bottom:-24vmax;animation-delay:-3s;animation-duration:21s}
 .bg b{position:absolute;bottom:-30px;width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.8);animation:rise 13s linear infinite}
 .bg b:nth-of-type(1){left:8%}.bg b:nth-of-type(2){left:28%;animation-delay:-4s;width:18px;height:18px}.bg b:nth-of-type(3){left:52%;animation-delay:-8s}.bg b:nth-of-type(4){left:72%;animation-delay:-2s;width:9px;height:9px}.bg b:nth-of-type(5){left:90%;animation-delay:-10s;width:16px;height:16px}
-.hero{background:linear-gradient(120deg,#0a8f55,#17c47c,#f2b52f,#17c47c,#0a8f55);background-size:300% 100%;animation:shift 9s ease-in-out infinite alternate;border-radius:22px;padding:22px 18px;margin:6px 0 16px;box-shadow:0 18px 30px -16px var(--sh)}
+.hero{background:linear-gradient(120deg,#0a8f55,#17c47c 55%,#f2b52f);border-radius:22px;padding:22px 18px;margin:6px 0 16px;box-shadow:0 18px 30px -16px var(--sh)}
 .hero h1{color:#fff;margin-top:0;text-shadow:0 2px 10px rgba(0,0,0,.18)}.hero p{color:rgba(255,255,255,.92);margin-bottom:0}
 .card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:14px;margin:12px 0;box-shadow:0 12px 24px -18px rgba(0,0,0,.55);transition:transform .25s cubic-bezier(.34,1.56,.64,1),border-color .2s,box-shadow .2s}
 .course{display:flex;gap:12px;align-items:center;cursor:pointer}
@@ -39,7 +43,7 @@ input:focus{border-color:var(--g);box-shadow:0 0 0 4px rgba(25,184,114,.25);outl
 button,.btn{position:relative;overflow:hidden;display:block;width:100%;text-align:center;padding:15px 18px;border:0;border-radius:18px;background:linear-gradient(180deg,var(--gl),var(--g) 45%,var(--g2));color:#fff;font:700 16px Sora,sans-serif;letter-spacing:.2px;cursor:pointer;text-decoration:none;margin:12px 0;box-shadow:0 10px 20px -8px var(--sh),inset 0 1px 0 rgba(255,255,255,.4),inset 0 -2px 0 rgba(0,0,0,.12);text-shadow:0 1px 2px rgba(0,0,0,.2);transition:transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .2s,filter .2s}
 button:hover:not(:disabled),.btn:hover{transform:translateY(-2px);filter:brightness(1.06)}
 button:active:not(:disabled),.btn:active{transform:scale(.94);box-shadow:0 3px 8px -4px var(--sh),inset 0 2px 4px rgba(0,0,0,.18);filter:brightness(.97);transition-duration:.08s}
-.btn::after,#ct::after,#sd::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.45),transparent);transform:skewX(-20deg);animation:shine 3.6s ease-in-out infinite;pointer-events:none}
+.btn::after,#ct::after,#sd::after{content:"";position:absolute;top:0;left:0;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.45),transparent);transform:translateX(-150%) skewX(-20deg);animation:shine 3.6s ease-in-out infinite;pointer-events:none}
 button.alt{background:var(--card);color:var(--ink);border:1px solid var(--line);text-shadow:none;box-shadow:0 8px 16px -10px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.5)}
 button.no{background:linear-gradient(180deg,#ff8a78,var(--r) 45%,var(--r2));box-shadow:0 10px 20px -8px rgba(229,83,63,.6),inset 0 1px 0 rgba(255,255,255,.4)}
 button:disabled{opacity:.55;cursor:wait;transform:scale(.98);box-shadow:none}
@@ -59,23 +63,19 @@ summary{cursor:pointer}
 @keyframes drift{to{transform:translate(9vmax,7vmax) scale(1.18)}}
 @keyframes rise{from{transform:translateY(0);opacity:0}15%{opacity:1}to{transform:translateY(-110vh) translateX(30px);opacity:0}}
 @keyframes shift{to{background-position:100% 0}}
-@keyframes shine{0%,60%{left:-60%}100%{left:130%}}
+@keyframes shine{0%,60%{transform:translateX(-150%) skewX(-20deg)}100%{transform:translateX(325%) skewX(-20deg)}}
 @keyframes rip{to{transform:scale(4);opacity:0}}
 @keyframes in{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
 @keyframes pop{50%{transform:scale(1.15)}}
-#app>*{animation:in .45s cubic-bezier(.2,.8,.3,1) both}#app>*:nth-child(2){animation-delay:.06s}#app>*:nth-child(3){animation-delay:.12s}#app>*:nth-child(4){animation-delay:.18s}
+#app>*{animation:in .2s ease-out both}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.bg b{display:none}}
+.ld{display:flex;flex-direction:column;align-items:center;gap:6px;padding:90px 0}.sp{width:46px;height:46px;border-radius:50%;border:5px solid rgba(25,184,114,.25);border-top-color:var(--g);animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
-<main id="app"><p>Chargement de la plateforme (étape 1 sur 2)…</p></main>
-<script>setTimeout(function(){if(!window.__ok)document.getElementById("app").innerHTML='<h1>Étape 1 bloquée</h1><p>Ton téléphone n\'arrive pas à télécharger les outils Google (Firebase). Cause probable : réseau trop faible ou bloqué. Essaie en Wi-Fi ou avec un autre réseau mobile, et ouvre le site dans Chrome depuis ton lien GitHub Pages.</p><button onclick="location.reload()">Réessayer</button>'},12000)</script>
+<main id="app"><div class="ld"><div class="sp"></div><p>Chargement…</p></div></main>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
-window.__ok=1;
 /* ===== À REMPLIR : config Firebase (Paramètres du projet > Vos applications > Web) ===== */
 const FIREBASE_CONFIG={apiKey:"AIzaSyBAGXXla0nAXhQwJr16aRyQU9TCPfpi88c",authDomain:"formation-2511b.firebaseapp.com",projectId:"formation-2511b",appId:"1:874261439478:web:b6b9a9971414d5fce6ddd7"};
 const ADMIN_EMAIL="msourabi610@gmail.com";
@@ -89,39 +89,64 @@ const COURSES=[
 {id:"site",title:"Créer une plateforme gratuitement avec ChatGPT",price:25000,link:PAY,desc:"Guide PDF pas à pas, avec tous les messages à copier-coller.",media:{type:"application/pdf",label:"Guide PDF : créer ta plateforme"}}
 ];
 
-if(typeof firebase==="undefined"||Object.values(FIREBASE_CONFIG).some(v=>v==="COLLE_ICI")){
-  document.getElementById("app").innerHTML=`<h1>Site pas encore configuré</h1><p>${typeof firebase==="undefined"?"Firebase n'a pas pu se charger. Vérifie ta connexion internet et ouvre le site depuis ton adresse GitHub Pages, pas depuis l'aperçu de Claude.":"Remplace les mots COLLE_ICI en haut du fichier par les clés de ton projet Firebase (étape 2 et 4 du guide PDF)."}</p>`;
-  throw new Error("Configuration Firebase manquante");
-}
-firebase.initializeApp(FIREBASE_CONFIG);
-const auth=firebase.auth(),db=firebase.firestore();
-db.settings({experimentalForceLongPolling:true,useFetchStreams:false,merge:true});
+const LS={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
 const $=id=>document.getElementById(id), app=$("app");
-app.innerHTML="<p>Connexion au serveur (étape 2 sur 2)…</p>";
-document.body.insertAdjacentHTML("afterbegin",'<div class="bg" aria-hidden="true"><i></i><i></i><i></i><i></i><b></b><b></b><b></b><b></b><b></b></div>');
-setTimeout(()=>{if(app.textContent.includes("étape 2 sur 2"))app.innerHTML=`<h1>Étape 2 bloquée</h1><p>Les outils sont chargés mais le serveur ne répond pas. Vérifie que Authentication (E-mail/Mot de passe) et Firestore sont bien activés dans Firebase, et que ton réseau fonctionne.</p><button onclick="location.reload()">Réessayer</button>`},10000);
+const LD='<div class="ld"><div class="sp"></div><p>Chargement…</p></div>';app.innerHTML=LD;
+const slow=()=>setTimeout(()=>{const p=app.querySelector(".ld p");if(p)p.textContent="Connexion lente, encore un instant…"},4000);slow();
+document.body.insertAdjacentHTML("afterbegin",'<div class="bg" aria-hidden="true"><i></i><i></i></div>');
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt=n=>n.toLocaleString("fr-FR")+" FCFA";
 const byId=id=>COURSES.find(c=>c.id===id);
-let unsub=null,sel=new Set(),mode="login";
+let sel=new Set(),mode="login";
 const ICO={ia:"🎬",tiktok:"🎵",youtube:"▶️",site:"🌐"};
 function burst(x,y,n){const C=["#17a463","#f0b23a","#4cc9f0","#ff7a8a","#a78bfa"];for(let i=0;i<n;i++){const e=document.createElement("i");e.className="cf";const a=Math.random()*6.28,d=50+Math.random()*130;e.style.cssText=`left:${x}px;top:${y}px;background:${C[i%5]};--dx:${Math.cos(a)*d}px;--dy:${Math.sin(a)*d-50}px;--r:${Math.random()*720-360}deg`;document.body.appendChild(e);setTimeout(()=>e.remove(),1000)}}
 let ac;function tick(){try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=520;g.gain.setValueAtTime(.04,ac.currentTime);g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+.08);o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+.08)}catch(e){}}
-document.addEventListener("pointerdown",e=>{const b=e.target.closest("button:not(:disabled),.btn,label.course");if(!b)return;if(navigator.vibrate)navigator.vibrate(10);tick();if(b.tagName==="LABEL")return;const r=b.getBoundingClientRect(),d=Math.max(r.width,r.height)/4,x=document.createElement("span");x.className="rip";x.style.cssText=`width:${d*2}px;height:${d*2}px;left:${e.clientX-r.left-d}px;top:${e.clientY-r.top-d}px`;b.appendChild(x);setTimeout(()=>x.remove(),500)});
+document.addEventListener("pointerdown",e=>{const b=e.target.closest("button:not(:disabled),.btn,label.course");if(!b)return;if(navigator.vibrate)navigator.vibrate(10);setTimeout(tick,0);if(b.tagName==="LABEL")return;const r=b.getBoundingClientRect(),d=Math.max(r.width,r.height)/4,x=document.createElement("span");x.className="rip";x.style.cssText=`width:${d*2}px;height:${d*2}px;left:${e.clientX-r.left-d}px;top:${e.clientY-r.top-d}px`;b.appendChild(x);setTimeout(()=>x.remove(),500)});
 
-auth.onAuthStateChanged(u=>{
-  if(unsub){unsub();unsub=null}
-  if(!u){return showAuth()}
-  app.innerHTML="<p>Étape 3 : chargement de ton espace…</p>";
-  clearTimeout(window._t3);window._t3=setTimeout(()=>{if(app.textContent.includes("Étape 3"))app.innerHTML=`<h1>Étape 3 bloquée</h1><p>Ton compte est reconnu, mais la base de données ne répond pas. Réseau trop faible, ou Firestore pas encore créé dans Firebase.</p><button onclick="location.reload()">Réessayer</button><button class="alt" onclick="auth.signOut().then(()=>location.reload())">Me déconnecter</button>`},12000)
-  if(u.email===ADMIN_EMAIL){
-    unsub=db.collection("orders").where("status","==","pending").onSnapshot(s=>showAdmin(u,s.docs.map(d=>({id:d.id,...d.data()}))),e=>fail(e));
-  }else{
-    unsub=db.collection("orders").doc(u.uid).onSnapshot(d=>route(u,d.exists?d.data():null),e=>fail(e));
-  }
-});
-function fail(e){app.innerHTML=`<p class="err">Erreur : ${esc(e.message)}</p><button onclick="auth.signOut()">Retour</button>`}
-const head=(u)=>`<div class="top"><strong>Technologie Invest</strong><button class="alt" onclick="auth.signOut()">Déconnexion</button></div>`;
+let rk="",shown=false,S=null,poll=null;
+const KEY=FIREBASE_CONFIG.apiKey,FS="https://firestore.googleapis.com/v1/projects/"+FIREBASE_CONFIG.projectId+"/databases/(default)/documents";
+const CK="ord",cacheGet=()=>{try{return JSON.parse(LS.get(CK))}catch(e){return null}};
+const cacheSet=(u,o)=>LS.set(CK,JSON.stringify(o?{uid:u.uid,email:u.email,status:o.status,courses:o.courses,total:o.total}:{uid:u.uid,email:u.email,status:"none"}));
+const saveS=()=>LS.set("ses",S?JSON.stringify(S):"");
+/* --- réseau : une seule fonction, délai max 30 s --- */
+async function jf(url,o){
+  const c=new AbortController(),t=setTimeout(()=>c.abort(),30000);
+  try{const r=await fetch(url,{...o,signal:c.signal}),j=r.status===204?{}:await r.json().catch(()=>({}));
+    if(!r.ok){const m=(j.error&&(j.error.message||j.error.status))||"HTTP "+r.status;throw Object.assign(new Error(m),{status:r.status})}return j}
+  catch(e){if(!e.status)e.code=e.name==="AbortError"?"timeout":"network";throw e}finally{clearTimeout(t)}}
+const AUTH=(p,b)=>jf("https://identitytoolkit.googleapis.com/v1/accounts:"+p+"?key="+KEY,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...b,returnSecureToken:true})});
+function setS(r){S={uid:r.localId,email:r.email,rt:r.refreshToken,id:r.idToken,exp:Date.now()+(+r.expiresIn-60)*1000};saveS()}
+async function tok(){
+  if(Date.now()<S.exp)return S.id;
+  const r=await jf("https://securetoken.googleapis.com/v1/token?key="+KEY,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:"grant_type=refresh_token&refresh_token="+encodeURIComponent(S.rt)});
+  S.id=r.id_token;S.rt=r.refresh_token;S.exp=Date.now()+(+r.expires_in-60)*1000;saveS();return S.id}
+/* --- base de données (API REST Firestore) --- */
+const enc=v=>typeof v==="string"?{stringValue:v}:Array.isArray(v)?{arrayValue:{values:v.map(enc)}}:{integerValue:String(v)};
+const dec=f=>"stringValue"in f?f.stringValue:"integerValue"in f?+f.integerValue:"arrayValue"in f?(f.arrayValue.values||[]).map(dec):null;
+const fromDoc=d=>{const o={};for(const k in d.fields||{})o[k]=dec(d.fields[k]);return o};
+const toFields=o=>{const f={};for(const k in o)f[k]=enc(o[k]);return{fields:f}};
+async function fs(path,method,body,mask){
+  const q=mask?"?"+mask.map(m=>"updateMask.fieldPaths="+m).join("&"):"";
+  return jf(FS+path+q,{method:method||"GET",headers:{Authorization:"Bearer "+await tok(),"Content-Type":"application/json"},body:body?JSON.stringify(body):undefined})}
+async function getOrder(uid){try{const o=fromDoc(await fs("/orders/"+uid));return o}catch(e){if(e.status===404&&!/database/i.test(e.message))return null;throw e}}
+async function pending(){
+  const r=await jf(FS+":runQuery",{method:"POST",headers:{Authorization:"Bearer "+await tok(),"Content-Type":"application/json"},body:JSON.stringify({structuredQuery:{from:[{collectionId:"orders"}],where:{fieldFilter:{field:{fieldPath:"status"},op:"EQUAL",value:{stringValue:"pending"}}}}})});
+  return r.filter(x=>x.document).map(x=>({id:x.document.name.split("/").pop(),...fromDoc(x.document)}))}
+/* --- messages clairs --- */
+function hint(e){const m=e.message||"";
+  return(/database.*does not exist/i.test(m)?"La base Firestore (default) n'existe pas encore : crée-la dans Firebase.":e.status===403?"Accès refusé : publie les règles de sécurité Firestore (ou vérifie que l'API Firestore est active).":e.code==="timeout"||e.code==="network"?"Réseau trop lent ou bloqué. Réessaie.":"Erreur")+" ("+m.slice(0,110)+")"}
+function fail(e){rk="";app.innerHTML=`<h1>Oups</h1><p class="err">${esc(hint(e))}</p><button onclick="sync()">Réessayer</button><button class="alt" onclick="out()">Me déconnecter</button>`}
+const out=()=>{clearInterval(poll);S=null;saveS();LS.set(CK,"");rk="";shown=false;showAuth()};
+const head=()=>`<div class="top"><strong>Technologie Invest</strong><button class="alt" onclick="out()">Déconnexion</button></div>`;
+/* --- synchronisation : une lecture au départ, puis toutes les 8 s seulement si on attend une validation (ou si admin) --- */
+async function sync(){
+  if(!S)return;
+  try{
+    if(S.email===ADMIN_EMAIL)showAdmin(S,await pending());else{const o=await getOrder(S.uid);cacheSet(S,o);route(S,o)}
+    clearInterval(poll);if(S.email===ADMIN_EMAIL||rk.startsWith("pending"))poll=setInterval(()=>document.hidden||sync(),8000)
+  }catch(e){
+    if(/TOKEN_EXPIRED|INVALID_REFRESH_TOKEN|USER_NOT_FOUND|USER_DISABLED|INVALID_GRANT/.test(e.message)){out();return}
+    if(!app.firstElementChild||app.querySelector(".ld"))fail(e)}}
 
 function showAuth(){
   const login=mode==="login";
@@ -134,13 +159,21 @@ function showAuth(){
   <button class="alt" id="sw">${login?"Pas de compte ? S'inscrire":"J'ai déjà un compte"}</button></div>`;
   $("sw").onclick=()=>{mode=login?"signup":"login";showAuth()};
   $("go").onclick=async()=>{
-    const e=$("em").value.trim(),p=$("pw").value;$("go").disabled=true;
-    try{await Promise.race([login?auth.signInWithEmailAndPassword(e,p):auth.createUserWithEmailAndPassword(e,p),new Promise((_,r)=>setTimeout(()=>r({code:"timeout"}),15000))])}
-    catch(x){$("er").textContent={"timeout":"Connexion impossible. Ouvre le site depuis ton lien GitHub Pages, pas depuis l'aperçu.","auth/email-already-in-use":"Cet email a déjà un compte. Connecte-toi.","auth/weak-password":"Mot de passe trop court (6 caractères minimum).","auth/invalid-email":"Adresse email invalide."}[x.code]||"Email ou mot de passe incorrect.";$("go").disabled=false}
+    const e=$("em").value.trim(),p=$("pw").value,b=$("go"),lab=login?"Se connecter":"Créer mon compte";
+    b.disabled=true;b.textContent="Un instant…";
+    try{
+      setS(await AUTH(login?"signInWithPassword":"signUp",{email:e,password:p}));rk="";shown=false;
+      if(login){app.innerHTML=LD;slow();sync()}else{rk="none";showCatalogue(S)}
+    }catch(x){const m=x.message||"";
+      $("er").textContent=/EMAIL_EXISTS/.test(m)?"Cet email a déjà un compte. Connecte-toi.":/WEAK_PASSWORD/.test(m)?"Mot de passe trop court (6 caractères minimum).":/INVALID_EMAIL|MISSING_EMAIL/.test(m)?"Adresse email invalide.":/INVALID_LOGIN|INVALID_PASSWORD|EMAIL_NOT_FOUND|MISSING_PASSWORD/.test(m)?"Email ou mot de passe incorrect.":x.code?"Réseau trop lent ou bloqué. Réessaie.":"Erreur : "+m;
+      b.disabled=false;b.textContent=lab}
   };
 }
 
 function route(u,o){
+  const k=o?o.status+"|"+o.courses.join()+"|"+o.total+"|"+(o.proof?1:0):"none";
+  if(k===rk&&app.firstElementChild&&!app.querySelector(".ld"))return;/* rien n'a changé : pas de re-dessin */
+  rk=k;
   if(!o) return showCatalogue(u);
   if(o.status==="approved") return showLearn(u,o);
   if(o.status==="pending") return showWait(u,o);
@@ -155,8 +188,10 @@ function showCatalogue(u){
   app.querySelectorAll("input[type=checkbox]").forEach(i=>i.onchange=()=>{if(i.checked){sel.add(i.value);const r=i.getBoundingClientRect();burst(r.left+13,r.top+13,12)}else sel.delete(i.value);upd()});
   upd();
   $("ct").onclick=async()=>{
-    const courses=[...sel],total=courses.reduce((a,i)=>a+byId(i).price,0);
-    await db.collection("orders").doc(u.uid).set({uid:u.uid,email:u.email,courses,total,status:"awaiting",createdAt:Date.now()});
+    const b=$("ct"),courses=[...sel],total=courses.reduce((a,i)=>a+byId(i).price,0);
+    b.disabled=true;b.textContent="Un instant…";
+    try{await fs("/orders/"+u.uid,"PATCH",toFields({uid:u.uid,email:u.email,courses,total,status:"awaiting",createdAt:Date.now()}));await sync()}
+    catch(e){b.disabled=false;b.textContent="Continuer vers le paiement";alert(hint(e))}
   };
 }
 
@@ -171,51 +206,54 @@ function showPay(u,o){
   <input type="file" id="fl" accept="image/*"><p id="er" class="err"></p>
   <button id="sd">Envoyer la preuve</button></div>
   <button class="alt" id="ch">Changer mes formations</button>`;
-  $("ch").onclick=()=>{sel=new Set(o.courses);db.collection("orders").doc(u.uid).delete()};
+  $("ch").onclick=()=>{sel=new Set(o.courses);fs("/orders/"+u.uid,"DELETE").then(sync)};
   $("sd").onclick=async()=>{
     const f=$("fl").files[0];if(!f){$("er").textContent="Choisis d'abord ta capture d'écran.";return}
     $("sd").disabled=true;
-    try{const proof=await shrink(f);await db.collection("orders").doc(u.uid).update({proof,status:"pending",sentAt:Date.now()})}
+    try{const proof=await shrink(f);await fs("/orders/"+u.uid,"PATCH",toFields({proof,status:"pending",sentAt:Date.now()}),["proof","status","sentAt"]);await sync()}
     catch(e){$("er").textContent="Envoi impossible : "+e.message;$("sd").disabled=false}
   };
 }
 function shrink(f){return new Promise((ok,ko)=>{const i=new Image();i.onload=()=>{const k=Math.min(1,900/Math.max(i.width,i.height)),c=document.createElement("canvas");c.width=i.width*k;c.height=i.height*k;c.getContext("2d").drawImage(i,0,0,c.width,c.height);ok(c.toDataURL("image/jpeg",.6))};i.onerror=()=>ko(new Error("image illisible"));i.src=URL.createObjectURL(f)})}
 
 function showWait(u,o){
-  app.innerHTML=head()+`<h1>Preuve envoyée</h1><p class="msg">L'administrateur vérifie ton paiement. Reviens plus tard : ton accès s'ouvrira dès la validation.</p><img class="proof" src="${o.proof}" alt="Ta capture d'écran">`;
+  app.innerHTML=head()+`<h1>Preuve envoyée</h1><p class="msg">L'administrateur vérifie ton paiement. Reviens plus tard : ton accès s'ouvrira dès la validation.</p>${o.proof?`<img class="proof" src="${o.proof}" alt="Ta capture d'écran">`:""}`;
 }
 
-const CH=600*1024;
+const CH=600*1024,MC={};
 function b64(buf){let s="";const a=new Uint8Array(buf);for(let i=0;i<a.length;i+=0x8000)s+=String.fromCharCode.apply(null,a.subarray(i,i+0x8000));return btoa(s)}
+const unb64=s=>{const b=atob(s),a=new Uint8Array(b.length);for(let i=0;i<b.length;i++)a[i]=b.charCodeAt(i);return a};
+const cid=i=>String(i).padStart(4,"0");
 async function uploadMedia(id,file,cb){
-  const m=db.collection("media").doc(id),col=m.collection("chunks");
-  const old=await col.get();for(const d of old.docs)await d.ref.delete();
+  const old=await fs("/media/"+id+"/chunks?pageSize=300&mask.fieldPaths=z").catch(()=>({}));
+  for(const d of old.documents||[])await fs("/media/"+id+"/chunks/"+d.name.split("/").pop(),"DELETE");
   const n=Math.ceil(file.size/CH);
-  for(let i=0;i<n;i++){const buf=await file.slice(i*CH,(i+1)*CH).arrayBuffer();await col.doc(String(i).padStart(4,"0")).set({d:b64(buf)});cb(i+1,n)}
-  await m.set({n,size:file.size});
+  for(let i=0;i<n;i++){const buf=await file.slice(i*CH,(i+1)*CH).arrayBuffer();await fs("/media/"+id+"/chunks/"+cid(i),"PATCH",toFields({d:b64(buf)}));cb(i+1,n)}
+  await fs("/media/"+id,"PATCH",toFields({n,size:file.size}));
 }
 async function loadMedia(id,type,cb){
-  const m=db.collection("media").doc(id),meta=await m.get();
-  if(!meta.exists)throw new Error("Ce contenu n'est pas encore disponible.");
-  const n=meta.data().n,parts=[];
-  for(let i=0;i<n;i+=4){
-    const ds=await Promise.all([...Array(Math.min(4,n-i)).keys()].map(k=>m.collection("chunks").doc(String(i+k).padStart(4,"0")).get()));
-    ds.forEach(d=>parts.push(Uint8Array.from(atob(d.data().d),c=>c.charCodeAt(0))));
-    cb(Math.min(i+4,n),n);
+  let m;try{m=fromDoc(await fs("/media/"+id))}catch(e){if(e.status===404)throw new Error("Ce contenu n'est pas encore disponible.");throw e}
+  const n=m.n,parts=[],W=6;
+  for(let i=0;i<n;i+=W){
+    const ds=await Promise.all([...Array(Math.min(W,n-i)).keys()].map(k=>fs("/media/"+id+"/chunks/"+cid(i+k))));
+    ds.forEach(d=>parts.push(unb64(d.fields.d.stringValue)));cb(Math.min(i+W,n),n);
   }
   return URL.createObjectURL(new Blob(parts,{type}));
 }
+const mhtml=(c,url)=>c.media.type==="application/pdf"
+  ?`<a class="btn" href="${url}" download="${esc(c.id)}.pdf">Télécharger le guide PDF</a>`
+  :`<video controls playsinline preload="metadata" style="width:100%;max-height:70vh;border-radius:12px;background:#000" src="${url}"></video><a class="btn" href="${url}" download="${esc(c.id)}.mp4">Télécharger la vidéo</a>`;
+function wire(root){root.querySelectorAll("button[data-open]").forEach(b=>b.onclick=async()=>{
+  const c=byId(b.dataset.open),box=$("m-"+c.id);box.innerHTML=`<p id="pg-${c.id}">Chargement 0%</p>`;
+  try{
+    const url=MC[c.id]||(MC[c.id]=await loadMedia(c.id,c.media.type,(a,n)=>{const e=$("pg-"+c.id);if(e)e.textContent="Chargement "+Math.round(a/n*100)+"%"}));
+    box.innerHTML=mhtml(c,url);
+  }catch(e){delete MC[c.id];box.innerHTML=`<p class="err">${esc(e.message)}</p><button data-open="${c.id}">Réessayer</button>`;wire(box)}
+})}
 function showLearn(u,o){if(!window._cf){window._cf=1;burst(innerWidth/2,innerHeight*.25,44)}
   app.innerHTML=head()+`<h1>Mes formations</h1>`+o.courses.map(i=>{const c=byId(i);return c?`<div class="card"><h2>${esc(c.title)}</h2><p>${esc(c.media.label)}</p><div id="m-${c.id}"><button data-open="${c.id}">Ouvrir</button></div></div>`:""}).join("");
-  app.querySelectorAll("button[data-open]").forEach(b=>b.onclick=async()=>{
-    const c=byId(b.dataset.open),box=$("m-"+c.id);box.innerHTML=`<p id="pg-${c.id}">Chargement 0%</p>`;
-    try{
-      const url=await loadMedia(c.id,c.media.type,(a,n)=>{const e=$("pg-"+c.id);if(e)e.textContent="Chargement "+Math.round(a/n*100)+"%"});
-      box.innerHTML=c.media.type==="application/pdf"
-        ?`<a class="btn" href="${url}" download="${esc(c.id)}.pdf">Télécharger le guide PDF</a>`
-        :`<video controls playsinline style="width:100%;max-height:70vh;border-radius:12px;background:#000" src="${url}"></video><a class="btn" href="${url}" download="${esc(c.id)}.mp4">Télécharger la vidéo</a>`;
-    }catch(e){box.innerHTML=`<p class="err">${esc(e.message)}</p><button data-open="${c.id}">Réessayer</button>`;showLearn(u,o)}
-  });
+  wire(app);
+  o.courses.forEach(i=>{if(byId(i)&&MC[i])$("m-"+i).innerHTML=mhtml(byId(i),MC[i])});/* déjà téléchargé : réaffichage instantané */
 }
 
 function showAdmin(u,list){
@@ -229,13 +267,18 @@ function showAdmin(u,list){
       catch(e){st.textContent="Erreur : "+e.message}
       b.disabled=false;
     });
-    COURSES.forEach(c=>db.collection("media").doc(c.id).get().then(d=>{if(d.exists)$("s-"+c.id).textContent="✅ Déjà envoyé"}).catch(()=>{}));
+    COURSES.forEach(c=>fs("/media/"+c.id).then(()=>{$("s-"+c.id).textContent="✅ Déjà envoyé"}).catch(()=>{}));
   }
   $("adm").innerHTML=`<h1>Preuves à valider (${list.length})</h1>`+(list.length?"":`<p>Aucune preuve en attente.</p>`)+
   list.map(o=>`<div class="card"><h2>${esc(o.email)}</h2><p>${o.courses.map(i=>esc(byId(i)?.title||i)).join(", ")}<br><strong>${fmt(o.total)}</strong></p>
   <img class="proof" src="${o.proof}" alt="Preuve de ${esc(o.email)}"><div class="row"><button data-a="approved" data-id="${o.id}">Valider</button><button class="no" data-a="rejected" data-id="${o.id}">Refuser</button></div></div>`).join("");
-  $("adm").querySelectorAll("button[data-id]").forEach(b=>b.onclick=()=>db.collection("orders").doc(b.dataset.id).update({status:b.dataset.a}));
+  $("adm").querySelectorAll("button[data-id]").forEach(b=>b.onclick=()=>fs("/orders/"+b.dataset.id,"PATCH",toFields({status:b.dataset.a}),["status"]).then(sync));
 }
+
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&S)sync()});
+try{S=JSON.parse(LS.get("ses"))}catch(e){S=null}
+if(!S||!S.rt){S=null;showAuth()}
+else{const c=cacheGet();if(c&&c.uid===S.uid&&S.email!==ADMIN_EMAIL){shown=true;route(c,c.status==="none"?null:c)}sync()}/* client connu : son écran s'affiche tout de suite, la mise à jour suit */
 </script>
 </body>
 </html>
