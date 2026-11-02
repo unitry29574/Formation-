@@ -78,7 +78,7 @@ summary{cursor:pointer}
 <script>
 /* ===== À REMPLIR : config Firebase (Paramètres du projet > Vos applications > Web) ===== */
 const FIREBASE_CONFIG={apiKey:"AIzaSyBAGXXla0nAXhQwJr16aRyQU9TCPfpi88c",authDomain:"formation-2511b.firebaseapp.com",projectId:"formation-2511b",appId:"1:874261439478:web:b6b9a9971414d5fce6ddd7"};
-const ADMIN_EMAIL="msourabi610@gmail.com";
+const ADMIN_EMAIL="msourabi610@gmail.com".toLowerCase();
 const PAY="https://pay.jeko.africa/pl/b0b8758e-0d42-4282-bed4-1e802b406d5d";
 
 /* ===== Formations : modifie prix, liens et leçons ici. Un lien Jeko = un montant, crée un lien par prix. ===== */
@@ -112,10 +112,10 @@ const saveS=()=>LS.set("ses",S?JSON.stringify(S):"");
 async function jf(url,o){
   const c=new AbortController(),t=setTimeout(()=>c.abort(),30000);
   try{const r=await fetch(url,{...o,signal:c.signal}),j=r.status===204?{}:await r.json().catch(()=>({}));
-    if(!r.ok){const m=(j.error&&(j.error.message||j.error.status))||"HTTP "+r.status;throw Object.assign(new Error(m),{status:r.status})}return j}
+    if(!r.ok){const er=Array.isArray(j)?(j[0]&&j[0].error):j.error;const m=(er&&(er.message||er.status))||"HTTP "+r.status;throw Object.assign(new Error(m),{status:r.status})}return j}
   catch(e){if(!e.status)e.code=e.name==="AbortError"?"timeout":"network";throw e}finally{clearTimeout(t)}}
 const AUTH=(p,b)=>jf("https://identitytoolkit.googleapis.com/v1/accounts:"+p+"?key="+KEY,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...b,returnSecureToken:true})});
-function setS(r){S={uid:r.localId,email:r.email,rt:r.refreshToken,id:r.idToken,exp:Date.now()+(+r.expiresIn-60)*1000};saveS()}
+function setS(r){S={uid:r.localId,email:(r.email||"").toLowerCase(),rt:r.refreshToken,id:r.idToken,exp:Date.now()+(+r.expiresIn-60)*1000};saveS()}
 async function tok(){
   if(Date.now()<S.exp)return S.id;
   const r=await jf("https://securetoken.googleapis.com/v1/token?key="+KEY,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:"grant_type=refresh_token&refresh_token="+encodeURIComponent(S.rt)});
