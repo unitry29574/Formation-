@@ -126,7 +126,7 @@ document.addEventListener("pointerdown",e=>{const b=e.target.closest("button:not
 let rk="",shown=false,S=null,poll=null;
 const KEY=FIREBASE_CONFIG.apiKey,FS="https://firestore.googleapis.com/v1/projects/"+FIREBASE_CONFIG.projectId+"/databases/default/documents";
 const CK="ord",cacheGet=()=>{try{return JSON.parse(LS.get(CK))}catch(e){return null}};
-const cacheSet=(u,o)=>LS.set(CK,JSON.stringify(o?{uid:u.uid,email:u.email,status:o.status,courses:o.courses,total:o.total}:{uid:u.uid,email:u.email,status:"none"}));
+const cacheSet=(u,o)=>LS.set(CK,JSON.stringify(o?{uid:u.uid,email:u.email,status:o.status,courses:o.courses,total:o.total,owned:o.owned||[]}:{uid:u.uid,email:u.email,status:"none"}));
 const saveS=()=>LS.set("ses",S?JSON.stringify(S):"");
 /* --- réseau : une seule fonction, délai max 30 s --- */
 async function jf(url,o){
@@ -156,7 +156,7 @@ async function pending(){
 function hint(e){const m=e.message||"";
   return(/database.*does not exist/i.test(m)?"La base Firestore (default) n'existe pas encore : crée-la dans Firebase.":e.status===403?"Accès refusé : publie les règles de sécurité Firestore (ou vérifie que l'API Firestore est active).":e.code==="timeout"||e.code==="network"?"Réseau trop lent ou bloqué. Réessaie.":"Erreur")+" ("+m.slice(0,110)+")"}
 function fail(e){rk="";app.innerHTML=`<h1>Oups</h1><p class="err">${esc(hint(e))}</p><button onclick="sync()">Réessayer</button><button class="alt" onclick="out()">Me déconnecter</button>`}
-const out=()=>{payGo=null;clearInterval(poll);S=null;saveS();LS.set(CK,"");rk="";shown=false;showAuth()};
+const out=()=>{payGo=null;view=null;CUR=null;clearInterval(poll);S=null;saveS();LS.set(CK,"");rk="";shown=false;showAuth()};
 const head=()=>`<div class="top"><strong>Technologie Invest</strong><button class="alt" onclick="out()">Déconnexion</button></div>`;
 /* --- synchronisation : une lecture au départ, puis toutes les 8 s seulement si on attend une validation (ou si admin) --- */
 async function sync(){
@@ -215,27 +215,35 @@ function showAuth(fresh){
   };
 }
 
+let view=null,CUR=null;
+const own=o=>o&&Array.isArray(o.owned)&&o.owned.length?o.owned:(o&&o.status==="approved"&&Array.isArray(o.courses)?o.courses:[]);
+const go=v=>{view=v;rk="";route(S,CUR)};
 function route(u,o){
-  const k=o?o.status+"|"+o.courses.join()+"|"+o.total+"|"+(o.proof?1:0):"none";
+  CUR=o;const ow=own(o),st=o?o.status:"none";
+  const k=st+"|"+(o&&o.courses?o.courses.join():"")+"|"+(o?o.total:"")+"|"+(o&&o.proof?1:0)+"|"+ow.join()+"|"+view;
   if(k===rk&&app.firstElementChild&&!app.querySelector(".ld"))return;/* rien n'a changé : pas de re-dessin */
   rk=k;
-  if(!o) return showCatalogue(u);
-  if(o.status==="approved") return showLearn(u,o);
-  if(o.status==="pending") return showWait(u,o);
-  showPay(u,o);
+  if(st==="awaiting"||st==="rejected")return showPay(u,o);
+  if(st==="pending")return showWait(u,o);
+  if(view==="shop"||!ow.length)return showCatalogue(u,ow);
+  showLearn(u,ow);
 }
 
-function showCatalogue(u){
-  app.innerHTML=head()+`<h1>Choisis tes formations</h1><p>Plus la formation est avancée, plus le prix augmente. Tu peux en prendre plusieurs.</p>`+
-  COURSES.map(c=>`<label class="card course"><input type="checkbox" value="${c.id}" ${sel.has(c.id)?"checked":""}><span class="ico">${ICO[c.id]||"📘"}</span><div><h2>${esc(c.title)}</h2><p>${esc(c.desc)}</p><span class="price">${fmt(c.price)}</span></div></label>`).join("")+
+function showCatalogue(u,ow){
+  ow=ow||[];ow.forEach(i=>sel.delete(i));
+  app.innerHTML=head()+(ow.length?`<button class="alt" id="mi">📚 Voir mes achats (${ow.length})</button>`:"")+
+  `<h1>${ow.length?"Acheter d'autres formations":"Choisis tes formations"}</h1><p>Plus la formation est avancée, plus le prix augmente. Tu peux en prendre plusieurs.</p>`+
+  COURSES.map(c=>ow.includes(c.id)?`<div class="card course" style="opacity:.7"><span class="ico">✅</span><div><h2>${esc(c.title)}</h2><p>Déjà acheté</p></div></div>`:
+  `<label class="card course"><input type="checkbox" value="${c.id}" ${sel.has(c.id)?"checked":""}><span class="ico">${ICO[c.id]||"📘"}</span><div><h2>${esc(c.title)}</h2><p>${esc(c.desc)}</p><span class="price">${fmt(c.price)}</span></div></label>`).join("")+
   `<div class="tot"><h2 id="tt"></h2><button id="ct">Continuer vers le paiement</button></div>`;
+  if(ow.length)$("mi").onclick=()=>go("mine");
   const upd=()=>{const e=$("tt");e.classList.remove("pop");void e.offsetWidth;e.classList.add("pop");const t=[...sel].reduce((a,i)=>a+byId(i).price,0);$("tt").textContent="Total : "+fmt(t);$("ct").disabled=!sel.size};
   app.querySelectorAll("input[type=checkbox]").forEach(i=>i.onchange=()=>{if(i.checked){sel.add(i.value);const r=i.getBoundingClientRect();burst(r.left+13,r.top+13,12)}else sel.delete(i.value);upd()});
   upd();
   $("ct").onclick=async()=>{
     const b=$("ct"),courses=[...sel],total=courses.reduce((a,i)=>a+byId(i).price,0);
     b.disabled=true;b.textContent="Un instant…";
-    try{await fs("/orders/"+u.uid,"PATCH",toFields({uid:u.uid,email:u.email,courses,total,status:"awaiting",createdAt:Date.now()}));await sync()}
+    try{view=null;await fs("/orders/"+u.uid,"PATCH",toFields({uid:u.uid,email:u.email,courses,total,status:"awaiting",proof:"",createdAt:Date.now()}),["uid","email","courses","total","status","proof","createdAt"]);await sync()}
     catch(e){b.disabled=false;b.textContent="Continuer vers le paiement";alert(hint(e))}
   };
 }
@@ -269,21 +277,26 @@ function showPay(u,o){
     <button class="alt" id="ch">Changer mes formations</button>`;
     $("pay").onclick=()=>{LS.set(key,"1");payGo=()=>showPay(u,o)};
     $("done").onclick=()=>{LS.set(key,"1");showPay(u,o)};
-    $("ch").onclick=()=>{LS.set(key,"");sel=new Set(o.courses);fs("/orders/"+u.uid,"DELETE").then(sync)};
+    $("ch").onclick=()=>{LS.set(key,"");sel=new Set(o.courses);fs("/orders/"+u.uid,"PATCH",toFields({courses:[],total:0,status:"idle",proof:""}),["courses","total","status","proof"]).then(()=>{view="shop";return sync()})};
   }
 }
 function shrink(f){return new Promise((ok,ko)=>{const i=new Image();i.onload=()=>{const k=Math.min(1,900/Math.max(i.width,i.height)),c=document.createElement("canvas");c.width=i.width*k;c.height=i.height*k;c.getContext("2d").drawImage(i,0,0,c.width,c.height);ok(c.toDataURL("image/jpeg",.6))};i.onerror=()=>ko(new Error("image illisible"));i.src=URL.createObjectURL(f)})}
 
-function showWait(u,o){
-  app.innerHTML=head()+`<h1>Preuve envoyée</h1><p class="msg">L'administrateur vérifie ton paiement. Reviens plus tard : ton accès s'ouvrira dès la validation.</p>${o.proof?`<img class="proof" src="${o.proof}" alt="Ta capture d'écran">`:""}`;
+function showWait(u,o){const ow=own(o);
+  app.innerHTML=head()+`<h1>Preuve envoyée</h1><p class="msg">L'administrateur vérifie ton paiement. Ton accès s'ouvrira dès la validation.</p>${o.proof?`<img class="proof" src="${o.proof}" alt="Ta capture d'écran">`:""}${ow.length?`<button class="alt" id="mi">📚 Voir mes achats</button>`:""}`;
+  if(ow.length)$("mi").onclick=()=>showLearn(u,ow,()=>{rk="";route(u,o)});
 }
 
 const mhtml=c=>{const m=c.media;
   if(m.drive)return `<iframe src="https://drive.google.com/file/d/${m.drive}/preview" style="width:100%;height:70vh;border:0;border-radius:12px;background:#fff" allow="autoplay"></iframe><a class="btn" href="https://drive.google.com/uc?export=download&id=${m.drive}" target="_blank" rel="noopener">Télécharger le guide PDF</a>`;
   const box=m.short?"max-width:340px;margin:0 auto;aspect-ratio:9/16":"aspect-ratio:16/9";
   return `<div style="${box}"><iframe src="https://www.youtube.com/embed/${m.yt}?rel=0" style="width:100%;height:100%;border:0;border-radius:12px;background:#000" allow="accelerometer;encrypted-media;picture-in-picture;fullscreen" allowfullscreen></iframe></div><a class="btn" href="https://www.youtube.com/watch?v=${m.yt}" target="_blank" rel="noopener">Ouvrir sur YouTube</a>`};
-function showLearn(u,o){if(!window._cf){window._cf=1;burst(innerWidth/2,innerHeight*.25,44)}
-  app.innerHTML=head()+`<h1>Mes formations</h1>`+o.courses.map(i=>{const c=byId(i);return c?`<div class="card"><h2>${esc(c.title)}</h2><p>${esc(c.media.label)}</p>${mhtml(c)}</div>`:""}).join("");
+function showLearn(u,ow,back){if(!window._cf){window._cf=1;burst(innerWidth/2,innerHeight*.25,44)}
+  const rest=COURSES.length-ow.length;
+  app.innerHTML=head()+`<h1>Mes achats</h1>`+ow.map(i=>{const c=byId(i);return c?`<div class="card"><h2>${esc(c.title)}</h2><p>${esc(c.media.label)}</p><div id="m-${c.id}"><button data-w="${c.id}">▶ Regarder</button></div></div>`:""}).join("")+
+  (back?`<button class="alt" id="bk">← Retour</button>`:rest>0?`<button id="mb">Acheter d'autres formations</button>`:"");
+  app.querySelectorAll("button[data-w]").forEach(b=>b.onclick=()=>{$("m-"+b.dataset.w).innerHTML=mhtml(byId(b.dataset.w))});
+  if(back)$("bk").onclick=back;else if(rest>0)$("mb").onclick=()=>go("shop");
 }
 
 function showAdmin(u,list){
@@ -297,7 +310,10 @@ function showAdmin(u,list){
   $("adm").innerHTML=`<h1>Preuves à valider (${list.length})</h1>`+(list.length?"":`<p>Aucune preuve en attente.</p>`)+
   list.map(o=>`<div class="card"><h2>${esc(o.email)}</h2><p>${o.courses.map(i=>esc(byId(i)?.title||i)).join(", ")}<br><strong>${fmt(o.total)}</strong></p>
   <img class="proof" src="${o.proof}" alt="Preuve de ${esc(o.email)}"><div class="row"><button data-a="approved" data-id="${o.id}">Valider</button><button class="no" data-a="rejected" data-id="${o.id}">Refuser</button></div></div>`).join("");
-  $("adm").querySelectorAll("button[data-id]").forEach(b=>b.onclick=()=>fs("/orders/"+b.dataset.id,"PATCH",toFields({status:b.dataset.a}),["status"]).then(sync));
+  $("adm").querySelectorAll("button[data-id]").forEach(b=>b.onclick=()=>{
+    const o=list.find(x=>x.id===b.dataset.id)||{};b.disabled=true;
+    const f=b.dataset.a==="approved"?{status:"approved",owned:[...new Set([...(o.owned||[]),...(o.courses||[])])]}:{status:"rejected"};
+    fs("/orders/"+b.dataset.id,"PATCH",toFields(f),Object.keys(f)).then(sync).catch(e=>{b.disabled=false;alert(hint(e))})});
 }
 
 document.addEventListener("visibilitychange",()=>{if(document.hidden||!S)return;if(payGo){const f=payGo;payGo=null;f();return}sync()});
