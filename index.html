@@ -37,7 +37,12 @@ p{margin:6px 0;color:var(--mut)}
 .course input{width:26px;height:26px;accent-color:var(--g);flex:none}
 .ico{font-size:32px;flex:none;transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
 .course:has(input:checked) .ico{transform:scale(1.25) rotate(-8deg)}
-.price{color:var(--o);font-weight:800;white-space:nowrap;margin-left:auto;padding-left:6px}
+.course>div{flex:1;min-width:0}.card,.card h2,.card p{overflow-wrap:anywhere}
+.price{display:inline-block;margin-top:6px;padding:4px 12px;border-radius:99px;background:rgba(240,150,40,.14);color:var(--o);font-weight:800;white-space:nowrap}
+.stp{display:flex;align-items:center;gap:8px;margin:12px 0 2px;font-size:13px;font-weight:700}
+.stp span{padding:6px 12px;border-radius:99px;background:var(--card);border:1px solid var(--line);color:var(--mut)}
+.stp span.on{background:var(--g);border-color:var(--g);color:#fff}.stp i{flex:1;height:2px;background:var(--line)}
+img.pv{display:block;max-height:240px;margin:8px auto}
 input[type=email],input[type=password],input[type=file]{width:100%;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);font:inherit;margin:6px 0;transition:border-color .2s,box-shadow .2s}
 input:focus{border-color:var(--g);box-shadow:0 0 0 4px rgba(25,184,114,.25);outline:none}
 button,.btn{position:relative;overflow:hidden;display:block;width:100%;text-align:center;padding:15px 18px;border:0;border-radius:18px;background:linear-gradient(180deg,var(--gl),var(--g) 45%,var(--g2));color:#fff;font:700 16px Sora,sans-serif;letter-spacing:.2px;cursor:pointer;text-decoration:none;margin:12px 0;box-shadow:0 10px 20px -8px var(--sh),inset 0 1px 0 rgba(255,255,255,.4),inset 0 -2px 0 rgba(0,0,0,.12);text-shadow:0 1px 2px rgba(0,0,0,.2);transition:transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .2s,filter .2s}
@@ -83,10 +88,10 @@ const PAY="https://pay.jeko.africa/pl/b0b8758e-0d42-4282-bed4-1e802b406d5d";
 
 /* ===== Formations : modifie prix, liens et leçons ici. Un lien Jeko = un montant, crée un lien par prix. ===== */
 const COURSES=[
-{id:"ia",title:"Créer des vidéos avec l'IA",price:8000,link:PAY,desc:"Vidéo pas à pas : comment créer une vidéo avec l'IA.",media:{type:"video/mp4",label:"Vidéo : créer une vidéo avec l'IA"}},
-{id:"tiktok",title:"Monétiser son compte TikTok légalement",price:10000,link:PAY,desc:"Vidéo de 8 minutes : monétiser ton compte TikTok dans le respect des règles.",media:{type:"video/mp4",label:"Vidéo : monétiser TikTok"}},
-{id:"youtube",title:"Monétiser une chaîne YouTube",price:12000,link:PAY,desc:"Vidéo : comment monétiser un compte YouTube.",media:{type:"video/mp4",label:"Vidéo : monétiser YouTube"}},
-{id:"site",title:"Créer une plateforme gratuitement avec ChatGPT",price:25000,link:PAY,desc:"Guide PDF pas à pas, avec tous les messages à copier-coller.",media:{type:"application/pdf",label:"Guide PDF : créer ta plateforme"}}
+{id:"ia",title:"Créer des vidéos avec l'IA",price:8000,link:PAY,desc:"Vidéo pas à pas : comment créer une vidéo avec l'IA.",media:{type:"video/mp4",label:"Vidéo : créer une vidéo avec l'IA",yt:"Rmwr9Yl91Kk"}},
+{id:"tiktok",title:"Monétiser son compte TikTok légalement",price:10000,link:PAY,desc:"Vidéo de 8 minutes : monétiser ton compte TikTok dans le respect des règles.",media:{type:"video/mp4",label:"Vidéo : monétiser TikTok",yt:"S_aVcYsITps"}},
+{id:"youtube",title:"Monétiser une chaîne YouTube",price:12000,link:PAY,desc:"Vidéo : comment monétiser un compte YouTube.",media:{type:"video/mp4",label:"Vidéo : monétiser YouTube",yt:"wQQKvk-lVos",short:1}},
+{id:"site",title:"Créer une plateforme gratuitement avec ChatGPT",price:25000,link:PAY,desc:"Guide PDF pas à pas, avec tous les messages à copier-coller.",media:{type:"application/pdf",label:"Guide PDF : créer ta plateforme",drive:"1tV41YES5ax9ezJ9lGLM8ZLNhtVymva5A"}}
 ];
 
 const LS={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
@@ -104,7 +109,7 @@ let ac;function tick(){try{ac=ac||new(window.AudioContext||window.webkitAudioCon
 document.addEventListener("pointerdown",e=>{const b=e.target.closest("button:not(:disabled),.btn,label.course");if(!b)return;if(navigator.vibrate)navigator.vibrate(10);setTimeout(tick,0);if(b.tagName==="LABEL")return;const r=b.getBoundingClientRect(),d=Math.max(r.width,r.height)/4,x=document.createElement("span");x.className="rip";x.style.cssText=`width:${d*2}px;height:${d*2}px;left:${e.clientX-r.left-d}px;top:${e.clientY-r.top-d}px`;b.appendChild(x);setTimeout(()=>x.remove(),500)});
 
 let rk="",shown=false,S=null,poll=null;
-const KEY=FIREBASE_CONFIG.apiKey,FS="https://firestore.googleapis.com/v1/projects/"+FIREBASE_CONFIG.projectId+"/databases/(default)/documents";
+const KEY=FIREBASE_CONFIG.apiKey,FS="https://firestore.googleapis.com/v1/projects/"+FIREBASE_CONFIG.projectId+"/databases/default/documents";
 const CK="ord",cacheGet=()=>{try{return JSON.parse(LS.get(CK))}catch(e){return null}};
 const cacheSet=(u,o)=>LS.set(CK,JSON.stringify(o?{uid:u.uid,email:u.email,status:o.status,courses:o.courses,total:o.total}:{uid:u.uid,email:u.email,status:"none"}));
 const saveS=()=>LS.set("ses",S?JSON.stringify(S):"");
@@ -136,7 +141,7 @@ async function pending(){
 function hint(e){const m=e.message||"";
   return(/database.*does not exist/i.test(m)?"La base Firestore (default) n'existe pas encore : crée-la dans Firebase.":e.status===403?"Accès refusé : publie les règles de sécurité Firestore (ou vérifie que l'API Firestore est active).":e.code==="timeout"||e.code==="network"?"Réseau trop lent ou bloqué. Réessaie.":"Erreur")+" ("+m.slice(0,110)+")"}
 function fail(e){rk="";app.innerHTML=`<h1>Oups</h1><p class="err">${esc(hint(e))}</p><button onclick="sync()">Réessayer</button><button class="alt" onclick="out()">Me déconnecter</button>`}
-const out=()=>{clearInterval(poll);S=null;saveS();LS.set(CK,"");rk="";shown=false;showAuth()};
+const out=()=>{payGo=null;clearInterval(poll);S=null;saveS();LS.set(CK,"");rk="";shown=false;showAuth()};
 const head=()=>`<div class="top"><strong>Technologie Invest</strong><button class="alt" onclick="out()">Déconnexion</button></div>`;
 /* --- synchronisation : une lecture au départ, puis toutes les 8 s seulement si on attend une validation (ou si admin) --- */
 async function sync(){
@@ -182,7 +187,7 @@ function route(u,o){
 
 function showCatalogue(u){
   app.innerHTML=head()+`<h1>Choisis tes formations</h1><p>Plus la formation est avancée, plus le prix augmente. Tu peux en prendre plusieurs.</p>`+
-  COURSES.map(c=>`<label class="card course"><input type="checkbox" value="${c.id}" ${sel.has(c.id)?"checked":""}><span class="ico">${ICO[c.id]||"📘"}</span><div><h2>${esc(c.title)}</h2><p>${esc(c.desc)}</p></div><span class="price">${fmt(c.price)}</span></label>`).join("")+
+  COURSES.map(c=>`<label class="card course"><input type="checkbox" value="${c.id}" ${sel.has(c.id)?"checked":""}><span class="ico">${ICO[c.id]||"📘"}</span><div><h2>${esc(c.title)}</h2><p>${esc(c.desc)}</p><span class="price">${fmt(c.price)}</span></div></label>`).join("")+
   `<div class="tot"><h2 id="tt"></h2><button id="ct">Continuer vers le paiement</button></div>`;
   const upd=()=>{const e=$("tt");e.classList.remove("pop");void e.offsetWidth;e.classList.add("pop");const t=[...sel].reduce((a,i)=>a+byId(i).price,0);$("tt").textContent="Total : "+fmt(t);$("ct").disabled=!sel.size};
   app.querySelectorAll("input[type=checkbox]").forEach(i=>i.onchange=()=>{if(i.checked){sel.add(i.value);const r=i.getBoundingClientRect();burst(r.left+13,r.top+13,12)}else sel.delete(i.value);upd()});
@@ -195,24 +200,37 @@ function showCatalogue(u){
   };
 }
 
+let payGo=null;
 function showPay(u,o){
-  const link=o.courses.length===1?byId(o.courses[0]).link:PAY;
-  app.innerHTML=head()+`<h1>Paiement</h1>
-  ${o.status==="rejected"?`<p class="msg err">Ta preuve a été refusée. Vérifie ton paiement et envoie une nouvelle capture d'écran.</p>`:""}
-  <div class="card"><h2>${o.courses.map(i=>esc(byId(i).title)).join("<br>")}</h2><h2 style="color:var(--o)">Total : ${fmt(o.total)}</h2></div>
-  <div class="card"><p><strong>1.</strong> Veuillez payer pour Technologie Invest en cliquant sur le lien ci-dessous.</p>
-  <a class="btn" href="${esc(link)}" target="_blank" rel="noopener">Payer ${fmt(o.total)}</a>
-  <p><strong>2.</strong> Reviens ici et envoie la capture d'écran de ton paiement.</p>
-  <input type="file" id="fl" accept="image/*"><p id="er" class="err"></p>
-  <button id="sd">Envoyer la preuve</button></div>
-  <button class="alt" id="ch">Changer mes formations</button>`;
-  $("ch").onclick=()=>{sel=new Set(o.courses);fs("/orders/"+u.uid,"DELETE").then(sync)};
-  $("sd").onclick=async()=>{
-    const f=$("fl").files[0];if(!f){$("er").textContent="Choisis d'abord ta capture d'écran.";return}
-    $("sd").disabled=true;
-    try{const proof=await shrink(f);await fs("/orders/"+u.uid,"PATCH",toFields({proof,status:"pending",sentAt:Date.now()}),["proof","status","sentAt"]);await sync()}
-    catch(e){$("er").textContent="Envoi impossible : "+e.message;$("sd").disabled=false}
-  };
+  payGo=null;
+  const link=o.courses.length===1?byId(o.courses[0]).link:PAY,key="pd_"+u.uid+"_"+o.courses.join(",");
+  const rej=o.status==="rejected"?`<p class="msg err">Ta preuve a été refusée. Vérifie ton paiement puis envoie une nouvelle capture d'écran.</p>`:"";
+  const sum=`<div class="card"><h2>${o.courses.map(i=>esc(byId(i).title)).join("<br>")}</h2><h2 style="color:var(--o)">Total : ${fmt(o.total)}</h2></div>`;
+  const stp=n=>`<div class="stp"><span class="on">1. Paiement</span><i></i><span class="${n>1?"on":""}">2. Preuve</span></div>`;
+  if(LS.get(key)==="1"){
+    app.innerHTML=head()+stp(2)+`<h1>Envoie ta preuve</h1>${rej}${sum}
+    <div class="card"><p>Merci pour ton paiement ! Envoie maintenant la <strong>capture d'écran</strong> de ton paiement. Ton accès s'ouvre dès que l'administrateur l'a validée.</p>
+    <input type="file" id="fl" accept="image/*"><img id="pv" class="proof pv" alt="Aperçu" style="display:none"><p id="er" class="err"></p>
+    <button id="sd">Envoyer la preuve</button></div>
+    <button class="alt" id="bk">← Retour au paiement</button>`;
+    $("fl").onchange=()=>{const f=$("fl").files[0],p=$("pv");if(f){p.src=URL.createObjectURL(f);p.style.display="block"}else p.style.display="none"};
+    $("bk").onclick=()=>{LS.set(key,"");showPay(u,o)};
+    $("sd").onclick=async()=>{
+      const f=$("fl").files[0];if(!f){$("er").textContent="Choisis d'abord ta capture d'écran.";return}
+      $("sd").disabled=true;$("sd").textContent="Envoi en cours…";
+      try{const proof=await shrink(f);await fs("/orders/"+u.uid,"PATCH",toFields({proof,status:"pending",sentAt:Date.now()}),["proof","status","sentAt"]);LS.set(key,"");await sync()}
+      catch(e){$("er").textContent="Envoi impossible : "+e.message;$("sd").disabled=false;$("sd").textContent="Envoyer la preuve"}
+    };
+  }else{
+    app.innerHTML=head()+stp(1)+`<h1>Paiement</h1>${rej}${sum}
+    <div class="card"><p>Clique sur le bouton ci-dessous pour payer pour Technologie Invest. <strong>Une fois le paiement fait, reviens sur cette page</strong> : l'étape suivante s'ouvrira toute seule.</p>
+    <a class="btn" id="pay" href="${esc(link)}" target="_blank" rel="noopener">Payer ${fmt(o.total)}</a>
+    <button class="alt" id="done">J'ai déjà payé</button></div>
+    <button class="alt" id="ch">Changer mes formations</button>`;
+    $("pay").onclick=()=>{LS.set(key,"1");payGo=()=>showPay(u,o)};
+    $("done").onclick=()=>{LS.set(key,"1");showPay(u,o)};
+    $("ch").onclick=()=>{LS.set(key,"");sel=new Set(o.courses);fs("/orders/"+u.uid,"DELETE").then(sync)};
+  }
 }
 function shrink(f){return new Promise((ok,ko)=>{const i=new Image();i.onload=()=>{const k=Math.min(1,900/Math.max(i.width,i.height)),c=document.createElement("canvas");c.width=i.width*k;c.height=i.height*k;c.getContext("2d").drawImage(i,0,0,c.width,c.height);ok(c.toDataURL("image/jpeg",.6))};i.onerror=()=>ko(new Error("image illisible"));i.src=URL.createObjectURL(f)})}
 
@@ -220,54 +238,17 @@ function showWait(u,o){
   app.innerHTML=head()+`<h1>Preuve envoyée</h1><p class="msg">L'administrateur vérifie ton paiement. Reviens plus tard : ton accès s'ouvrira dès la validation.</p>${o.proof?`<img class="proof" src="${o.proof}" alt="Ta capture d'écran">`:""}`;
 }
 
-const CH=600*1024,MC={};
-function b64(buf){let s="";const a=new Uint8Array(buf);for(let i=0;i<a.length;i+=0x8000)s+=String.fromCharCode.apply(null,a.subarray(i,i+0x8000));return btoa(s)}
-const unb64=s=>{const b=atob(s),a=new Uint8Array(b.length);for(let i=0;i<b.length;i++)a[i]=b.charCodeAt(i);return a};
-const cid=i=>String(i).padStart(4,"0");
-async function uploadMedia(id,file,cb){
-  const old=await fs("/media/"+id+"/chunks?pageSize=300&mask.fieldPaths=z").catch(()=>({}));
-  for(const d of old.documents||[])await fs("/media/"+id+"/chunks/"+d.name.split("/").pop(),"DELETE");
-  const n=Math.ceil(file.size/CH);
-  for(let i=0;i<n;i++){const buf=await file.slice(i*CH,(i+1)*CH).arrayBuffer();await fs("/media/"+id+"/chunks/"+cid(i),"PATCH",toFields({d:b64(buf)}));cb(i+1,n)}
-  await fs("/media/"+id,"PATCH",toFields({n,size:file.size}));
-}
-async function loadMedia(id,type,cb){
-  let m;try{m=fromDoc(await fs("/media/"+id))}catch(e){if(e.status===404)throw new Error("Ce contenu n'est pas encore disponible.");throw e}
-  const n=m.n,parts=[],W=6;
-  for(let i=0;i<n;i+=W){
-    const ds=await Promise.all([...Array(Math.min(W,n-i)).keys()].map(k=>fs("/media/"+id+"/chunks/"+cid(i+k))));
-    ds.forEach(d=>parts.push(unb64(d.fields.d.stringValue)));cb(Math.min(i+W,n),n);
-  }
-  return URL.createObjectURL(new Blob(parts,{type}));
-}
-const mhtml=(c,url)=>c.media.type==="application/pdf"
-  ?`<a class="btn" href="${url}" download="${esc(c.id)}.pdf">Télécharger le guide PDF</a>`
-  :`<video controls playsinline preload="metadata" style="width:100%;max-height:70vh;border-radius:12px;background:#000" src="${url}"></video><a class="btn" href="${url}" download="${esc(c.id)}.mp4">Télécharger la vidéo</a>`;
-function wire(root){root.querySelectorAll("button[data-open]").forEach(b=>b.onclick=async()=>{
-  const c=byId(b.dataset.open),box=$("m-"+c.id);box.innerHTML=`<p id="pg-${c.id}">Chargement 0%</p>`;
-  try{
-    const url=MC[c.id]||(MC[c.id]=await loadMedia(c.id,c.media.type,(a,n)=>{const e=$("pg-"+c.id);if(e)e.textContent="Chargement "+Math.round(a/n*100)+"%"}));
-    box.innerHTML=mhtml(c,url);
-  }catch(e){delete MC[c.id];box.innerHTML=`<p class="err">${esc(e.message)}</p><button data-open="${c.id}">Réessayer</button>`;wire(box)}
-})}
+const mhtml=c=>{const m=c.media;
+  if(m.drive)return `<iframe src="https://drive.google.com/file/d/${m.drive}/preview" style="width:100%;height:70vh;border:0;border-radius:12px;background:#fff" allow="autoplay"></iframe><a class="btn" href="https://drive.google.com/uc?export=download&id=${m.drive}" target="_blank" rel="noopener">Télécharger le guide PDF</a>`;
+  const box=m.short?"max-width:340px;margin:0 auto;aspect-ratio:9/16":"aspect-ratio:16/9";
+  return `<div style="${box}"><iframe src="https://www.youtube.com/embed/${m.yt}?rel=0" style="width:100%;height:100%;border:0;border-radius:12px;background:#000" allow="accelerometer;encrypted-media;picture-in-picture;fullscreen" allowfullscreen></iframe></div><a class="btn" href="https://www.youtube.com/watch?v=${m.yt}" target="_blank" rel="noopener">Ouvrir sur YouTube</a>`};
 function showLearn(u,o){if(!window._cf){window._cf=1;burst(innerWidth/2,innerHeight*.25,44)}
-  app.innerHTML=head()+`<h1>Mes formations</h1>`+o.courses.map(i=>{const c=byId(i);return c?`<div class="card"><h2>${esc(c.title)}</h2><p>${esc(c.media.label)}</p><div id="m-${c.id}"><button data-open="${c.id}">Ouvrir</button></div></div>`:""}).join("");
-  wire(app);
-  o.courses.forEach(i=>{if(byId(i)&&MC[i])$("m-"+i).innerHTML=mhtml(byId(i),MC[i])});/* déjà téléchargé : réaffichage instantané */
+  app.innerHTML=head()+`<h1>Mes formations</h1>`+o.courses.map(i=>{const c=byId(i);return c?`<div class="card"><h2>${esc(c.title)}</h2><p>${esc(c.media.label)}</p>${mhtml(c)}</div>`:""}).join("");
 }
 
 function showAdmin(u,list){
   if(!$("adm")){
-    app.innerHTML=head()+`<div id="adm"></div><details><summary class="card"><b>Contenus des formations</b> (à envoyer une seule fois)</summary><p>Choisis chaque vidéo ou PDF dans ton téléphone. Ils sont protégés : seuls les élèves validés les voient.</p>`+
-    COURSES.map(c=>`<div class="card"><h2>${esc(c.media.label)}</h2><input type="file" id="f-${c.id}" accept="${c.media.type==="application/pdf"?"application/pdf":"video/mp4,video/*"}"><button data-up="${c.id}">Envoyer</button><p id="s-${c.id}"></p></div>`).join("")+"</details>";
-    app.querySelectorAll("button[data-up]").forEach(b=>b.onclick=async()=>{
-      const id=b.dataset.up,f=$("f-"+id).files[0],st=$("s-"+id);if(!f){st.textContent="Choisis un fichier.";return}
-      b.disabled=true;
-      try{await uploadMedia(id,f,(a,n)=>st.textContent="Envoi "+Math.round(a/n*100)+"%");st.textContent="Envoyé."}
-      catch(e){st.textContent="Erreur : "+e.message}
-      b.disabled=false;
-    });
-    COURSES.forEach(c=>fs("/media/"+c.id).then(()=>{$("s-"+c.id).textContent="✅ Déjà envoyé"}).catch(()=>{}));
+    app.innerHTML=head()+`<div id="adm"></div>`;
   }
   $("adm").innerHTML=`<h1>Preuves à valider (${list.length})</h1>`+(list.length?"":`<p>Aucune preuve en attente.</p>`)+
   list.map(o=>`<div class="card"><h2>${esc(o.email)}</h2><p>${o.courses.map(i=>esc(byId(i)?.title||i)).join(", ")}<br><strong>${fmt(o.total)}</strong></p>
@@ -275,7 +256,7 @@ function showAdmin(u,list){
   $("adm").querySelectorAll("button[data-id]").forEach(b=>b.onclick=()=>fs("/orders/"+b.dataset.id,"PATCH",toFields({status:b.dataset.a}),["status"]).then(sync));
 }
 
-document.addEventListener("visibilitychange",()=>{if(!document.hidden&&S)sync()});
+document.addEventListener("visibilitychange",()=>{if(document.hidden||!S)return;if(payGo){const f=payGo;payGo=null;f();return}sync()});
 try{S=JSON.parse(LS.get("ses"))}catch(e){S=null}
 if(!S||!S.rt){S=null;showAuth()}
 else{const c=cacheGet();if(c&&c.uid===S.uid&&S.email!==ADMIN_EMAIL){shown=true;route(c,c.status==="none"?null:c)}sync()}/* client connu : son écran s'affiche tout de suite, la mise à jour suit */
